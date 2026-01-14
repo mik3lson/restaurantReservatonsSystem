@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: reservation_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_NAME:-reservation_db}
+      MYSQL_USER: ${DB_USER:-reservation_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-reservation_password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - reservation_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  app:
+    build: .
+    container_name: reservation_app
+    environment:
+      DB_HOST: mysql
+      DB_NAME: ${DB_NAME:-reservation_db}
+      DB_USER: ${DB_USER:-reservation_user}
+      DB_PASSWORD: ${DB_PASSWORD:-reservation_password}
+      PORT: 3000
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - reservation_network
+    volumes:
+      - ./src:/app/src
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  reservation_network:
+    driver: bridge
