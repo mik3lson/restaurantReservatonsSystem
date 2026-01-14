@@ -4,9 +4,8 @@ const Table = require("../models/Table");
 const Reservation = require("../models/Reservation");
 const Customer = require("../models/Customer");
 
-/**
- * Create a restaurant
- */
+// Create a restaurant
+
 const createRestaurant = async (req, res) => {
   try {
     const { name, openTime, closeTime } = req.body;
@@ -31,9 +30,8 @@ const createRestaurant = async (req, res) => {
   }
 };
 
-/**
- * Get all restaurants
- */
+//Get all restaurants
+
 const getAllRestaurants = async (req, res) => {
   try {
     const restaurants = await Restaurant.findAll();
@@ -45,9 +43,7 @@ const getAllRestaurants = async (req, res) => {
   }
 };
 
-/**
- * Get restaurant by ID
- */
+// Get restaurant by ID
 const getRestaurantById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -66,13 +62,20 @@ const getRestaurantById = async (req, res) => {
       });
     }
 
-    return res.json(restaurant);
+    const numberOfTables = restaurant.Tables.length || 0;
+
+    return res.json({
+        ...restaurant.toJSON(),
+    numberOfTables
+  });
   } catch (error) {
     return res.status(500).json({
       message: error.message
     });
   }
 };
+
+
 const getRestaurantWithReservations = async (req, res) => {
   try {
     const { id } = req.params;

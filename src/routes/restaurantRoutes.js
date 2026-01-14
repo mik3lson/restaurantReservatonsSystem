@@ -18,4 +18,5 @@ router.get("/", getAllRestaurants);
 router.get("/:id", getRestaurantById);
 
 router.get("/:id/reservations", getRestaurantWithReservations);
+
 module.exports = router;

@@ -1,4 +1,7 @@
 const { createReservationService } = require("../services/reservation.services");
+const { Op } = require("sequelize");
+const Reservation = require("../models/Reservation");
+const Table = require("../models/Table");
 
 const createReservation = async (req, res) => {
   try {
@@ -21,6 +24,7 @@ const createReservation = async (req, res) => {
     return res.status(400).json({ message: error.message });
   }
 };  
+
 /**
  * GET /restaurants/:id/reservations?date=YYYY-MM-DD
  */
@@ -42,7 +46,109 @@ const getReservationsForRestaurant = async (req, res) => {
   }
 };
 
+
+// Cancel a reservation
+const cancelReservation = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const reservation = await Reservation.findByPk(id);
+
+    if (!reservation) {
+      return res.status(404).json({
+        message: "Reservation not found"
+      });
+    }
+
+    await reservation.destroy();
+
+    return res.json({
+      message: "Reservation cancelled successfully"
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message
+    });
+  }
+};
+
+
+// Update a reservation
+const updateReservation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { startTime, endTime, partySize } = req.body;
+
+    const reservation = await Reservation.findByPk(id);
+
+    if (!reservation) {
+      return res.status(404).json({ message: "Reservation not found" });
+    }
+
+    // Prevent updating past reservations
+    if (new Date(reservation.startTime) < new Date()) {
+      return res.status(400).json({
+        message: "Cannot update a reservation that has already started"
+      });
+    }
+
+    const newStart = startTime ? new Date(startTime) : reservation.startTime;
+    const newEnd = endTime ? new Date(endTime) : reservation.endTime;
+    const newPartySize = partySize || reservation.partySize;
+
+    // Find suitable tables in the restaurant
+    const tables = await Table.findAll({
+      where: {
+        restaurantId: reservation.restaurantId,
+        capacity: { [Op.gte]: newPartySize }
+      }
+    });
+
+    let availableTable = null;
+
+    for (const table of tables) {
+      const conflict = await Reservation.findOne({
+        where: {
+          tableId: table.id,
+          id: { [Op.ne]: reservation.id },
+          startTime: { [Op.lt]: newEnd },
+          endTime: { [Op.gt]: newStart }
+        }
+      });
+
+      if (!conflict) {
+        availableTable = table;
+        break;
+      }
+    }
+
+    // Check if new time is available tables
+    if (!availableTable) {
+      return res.status(400).json({
+        message: "No available tables for the selected time"
+      });
+    }
+
+    // Update reservation
+    reservation.startTime = newStart;
+    reservation.endTime = newEnd;
+    reservation.partySize = newPartySize;
+    reservation.tableId = availableTable.id;
+
+    await reservation.save();
+
+    return res.json(reservation);
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message
+    });
+  }
+};
+
+
 module.exports = { 
     createReservation, 
-    getReservationsForRestaurant 
+    getReservationsForRestaurant,
+    cancelReservation,
+    updateReservation
 };

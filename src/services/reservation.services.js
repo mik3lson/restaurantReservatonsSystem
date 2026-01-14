@@ -67,33 +67,8 @@ const createReservationService = async ({
   throw new Error("Restaurant fully booked for this time slot");
 };
 
-const getReservationsByRestaurantAndDate = async (restaurantId, date) => {
-  // Convert the date string into start & end of the day
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
 
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
-
-  const reservations = await Reservation.findAll({
-    where: {
-      restaurantId,
-      startTime: {
-        [Op.gte]: startOfDay,
-        [Op.lte]: endOfDay
-      }
-    },
-    include: [
-      { model: Table, attributes: ["id", "tableNumber", "capacity"] },
-      { model: Customer, attributes: ["id", "name", "phone"] }
-    ],
-    order: [["startTime", "ASC"]]
-  });
-
-  return reservations;
-};
 
 module.exports = {
-  createReservationService,
-  getReservationsByRestaurantAndDate
+  createReservationService
 };
