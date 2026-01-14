@@ -121,9 +121,66 @@ const getRestaurantWithReservations = async (req, res) => {
   }
 };
 
+const getAvailableTables = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { startTime, endTime, partySize } = req.query;
+
+    if (!startTime || !endTime) {
+      return res.status(400).json({
+        message: "startTime and endTime are required"
+      });
+    }
+
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+
+    // Get candidate tables
+    const tables = await Table.findAll({
+      where: {
+        restaurantId: id,
+        ...(partySize && {
+          capacity: { [Op.gte]: Number(partySize) }
+        })
+      }
+    });
+
+    // Filtering out tables with conflicts
+    const availableTables = [];
+
+    for (const table of tables) {
+      const conflict = await Reservation.findOne({
+        where: {
+          tableId: table.id,
+          startTime: { [Op.lt]: end },
+          endTime: { [Op.gt]: start }
+        }
+      });
+
+      if (!conflict) {
+        availableTables.push(table);
+      }
+    }
+
+    return res.json({
+      restaurantId: id,
+      availableTablesCount: availableTables.length,
+      availableTables
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message
+    });
+  }
+};
+
+
+
+
 module.exports = {
   createRestaurant,
   getAllRestaurants,
   getRestaurantById,
-  getRestaurantWithReservations
+  getRestaurantWithReservations,
+  getAvailableTables
 };

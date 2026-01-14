@@ -2,6 +2,29 @@ const { createReservationService } = require("../services/reservation.services")
 const { Op } = require("sequelize");
 const Reservation = require("../models/Reservation");
 const Table = require("../models/Table");
+const Customer = require("../models/Customer");
+
+/**
+ * Helper function to get reservations by restaurant and date
+ */
+const getReservationsByRestaurantAndDate = async (restaurantId, date) => {
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  return await Reservation.findAll({
+    where: {
+      restaurantId,
+      startTime: { [Op.gte]: startOfDay, [Op.lte]: endOfDay }
+    },
+    include: [
+      { model: Table },
+      { model: Customer }
+    ]
+  });
+};
 
 const createReservation = async (req, res) => {
   try {

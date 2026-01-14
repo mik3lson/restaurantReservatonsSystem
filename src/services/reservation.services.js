@@ -20,10 +20,12 @@ const createReservationService = async ({
   const startHour = startTime.getHours();
   const endHour = endTime.getHours();
 
-  if (
-    startHour < restaurant.openingTime ||
-    endHour > restaurant.closingTime
-  ) {
+  // Note: openTime and closeTime are stored as TIME type
+  // We need to extract the hour from them for comparison
+  const openHour = parseInt(restaurant.openTime.split(':')[0]);
+  const closeHour = parseInt(restaurant.closeTime.split(':')[0]);
+
+  if (startHour < openHour || endHour > closeHour) {
     throw new Error("Reservation outside operating hours");
   }
 
