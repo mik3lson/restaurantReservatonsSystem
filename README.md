@@ -626,70 +626,27 @@ Cancels and removes a reservation.
 - Relationships defined in model index file
 - **Rationale**: Type safety, query building, and migration support
 
-### 8. **Layered Architecture**
-```
-Routes → Controllers → Services → Models → Database
-```
-- **Rationale**: Separation of concerns, testability, maintainability
 
----
 
-## Known Limitations
+## Known Limitations and posible future Improvements
 
 ### 1. **Single Time Zone Support**
-- System currently assumes UTC timezone
-- All timestamps stored as UTC but no client-side timezone conversion
-- **Impact**: Multi-region restaurants may have issues with local time interpretation
+- System currently assumes UTC timezone, hence it currently relies on client-side timezone conversion else Multi-region restaurants may have issues with local time interpretation
 
 ### 2. **No Authentication/Authorization**
-- No user authentication or role-based access control
-- Any client can access all endpoints
-- **Impact**: Security concern for production use
+- For the simplicty of an interview demo, no user authentication or session magangement(using jwt) were aded.
 
 ### 3. **No Rate Limiting**
 - API has no throttling mechanism
-- Vulnerable to brute force or DOS attacks
-- **Impact**: Production deployments should add middleware
-
-### 4. **Limited Validation**
-- Phone number format not validated (accepts any string)
-- No input sanitization for SQL injection (Sequelize handles this but could be stricter)
-- Time format assumes ISO 8601 without explicit validation
 
 ### 5. **No Pagination**
 - `GET /customers` and `GET /restaurants` return all records
 - Could cause performance issues with large datasets
-- **Impact**: Limited scalability for production use
 
-### 6. **No Transaction Support**
-- Multi-step operations (create reservation + assign table) lack atomic guarantees
-- If one fails mid-operation, database can be left in inconsistent state
 
-### 7. **Synchronous Operations Only**
-- All database operations are synchronous
-- No queue or background job support for heavy operations
-- **Impact**: Long operations could timeout
+## Other Future Improvements
 
-### 8. **No API Versioning**
-- Current API has no version prefix (v1, v2, etc.)
-- Difficult to manage breaking changes
-- **Impact**: Breaking changes force all clients to update
 
-### 9. **Limited Error Information**
-- Generic error messages without detailed validation error arrays
-- Difficult for clients to identify specific validation failures
-- **Impact**: Poor developer experience
-
-### 10. **No Logging/Monitoring**
-- No structured logging system
-- No performance metrics or alerting
-- **Impact**: Difficult to debug issues in production
-
----
-
-## Future Improvements
-
-### Short Term (1-2 weeks)
 
 1. **Authentication & Authorization**
    - Implement JWT-based authentication
@@ -818,11 +775,6 @@ npm test              # Run all tests with coverage
 npm run test:watch    # Run tests in watch mode
 ```
 
-### Code Structure
-- Clean separation between routes, controllers, services, and models
-- Service layer handles business logic
-- Controllers handle HTTP layer concerns
-- Models define database schema and relationships
 
 ### Database Migrations
 Currently using `sequelize.sync({ alter: true })` in development.
@@ -848,4 +800,5 @@ For issues or questions:
 **Version**: 1.0.0  
 **Test Coverage**: 93.19%  
 **Tests**: 52/52 passing
+
 
