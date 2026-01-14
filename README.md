@@ -23,9 +23,10 @@ A comprehensive backend API for managing restaurant reservations, tables, and cu
 
 ### Local Setup
 
-1. **Clone and install dependencies**
+1. **Clone github repo and install dependencies**
    ```bash
-   cd reservationSystem
+   git clone https://github.com/mik3lson/restaurantReservationsSystem.git
+   cd restaurantReservationSystem
    npm install
    ```
 
@@ -847,3 +848,4 @@ For issues or questions:
 **Version**: 1.0.0  
 **Test Coverage**: 93.19%  
 **Tests**: 52/52 passing
+
