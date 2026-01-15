@@ -52,9 +52,7 @@ A comprehensive backend API for managing restaurant reservations, tables, and cu
 
 4. **Start the server**
    ```bash
-   npm start
-   # or for development with hot reload
-   npm run dev
+   node server.js
    ```
 
    Server will be available at `http://localhost:3000`
@@ -686,6 +684,7 @@ For issues or questions:
 **Version**: 1.0.0  
 **Test Coverage**: 93.19%  
 **Tests**: 52/52 passing
+
 
 
 
