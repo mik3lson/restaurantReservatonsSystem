@@ -1,2 +1,5 @@
 src/.env
 node_modules
+coverage/
+*.html
+TEST_SUMMARY.md
