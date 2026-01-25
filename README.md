@@ -31,10 +31,7 @@ A comprehensive backend API for managing restaurant reservations, tables, and cu
    ```
 
 2. **Configure environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` with your database credentials:
+   Create and Edit `.env` with your database credentials:
    ```
    DB_HOST=localhost
    DB_NAME=reservation_db
@@ -684,6 +681,7 @@ For issues or questions:
 **Version**: 1.0.0  
 **Test Coverage**: 93.19%  
 **Tests**: 52/52 passing
+
 
 
 
